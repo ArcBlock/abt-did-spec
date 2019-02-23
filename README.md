@@ -1,8 +1,9 @@
-DID-Auth-Protocol
+## DID-Auth-Protocol
 
 This repository defines the specification of ArcBlock DID Auth Protocol.
 
 ## Table of Contents
+- [DID-Auth-Protocol](#did-auth-protocol)
 - [Table of Contents](#table-of-contents)
 - [Abstract](#abstract)
 - [Motivation](#motivation)
@@ -58,7 +59,7 @@ https://arcwallet.io/i?appPk=zBdZEnbDJTijVVCx4Nx68bzDPPMFwVizSRorvzSS3SGG2&appDi
 
 ### Request DID Authentication
 
-After the wallet gathers the information described in previous section it starts the Request DID Authentication process. The main purpose of this process is to acquire the verifiable claims requested by application. 
+After the wallet gathers the information described in previous section it starts the Request DID Authentication process. The main purpose of this process is to acquire the verifiable claims requested by application.
 
 1. First, wallet must calculate a `userDid` for this application. This is intend to protect the user's privacy. We use BIP44 to calculate this `userDid`:
     1. Apply sha3 to the appDid
@@ -72,7 +73,7 @@ After the wallet gathers the information described in previous section it starts
     ```
     GET https://example-application.io/auth?userDid=encrypted_userDid
     ```
-4. The response returned by application should contain two fields `appPk` and `authInfo`. 
+4. The response returned by application should contain two fields `appPk` and `authInfo`.
    - `appPk` is the application's public key, encoded by Bitcoin Base58.
    - `authInfo` is a signed object in JWT format.
 
@@ -103,16 +104,16 @@ After the wallet gathers the information described in previous section it starts
       "action": "responseAuth",
       "url": "https://example-application/auth",
       "requestedClaims": [
-        { 
+        {
           "type": "profile",
-          "meta": { 
+          "meta": {
             "description": "Please fill in basic information."
-          }, 
-          "items": ["fullName", "mobilePhone", "mailingAddress"] 
+          },
+          "items": ["fullName", "mobilePhone", "mailingAddress"]
         },
-        { 
+        {
           "type": "agreement",
-          "meta": { 
+          "meta": {
             "description": "The user data usage agreement."
           },
           "uri": "https://document-1.io",
@@ -121,9 +122,9 @@ After the wallet gathers the information described in previous section it starts
             "digest": "The hash result of the document's content"
           }
         },
-        { 
+        {
           "type": "agreement",
-          "meta": { 
+          "meta": {
             "description": "The service agreement"
           },
           "uri": "ipfs://document-2",
@@ -138,7 +139,7 @@ After the wallet gathers the information described in previous section it starts
 
   - `iss`: The application's DID generated from `appPk`
   - `iat`, `nbf` and `exp`: Follow the JWT standard.
-  - `appInfo`: 
+  - `appInfo`:
   - `url`: A must-have field that will be used by wallet in Response DID Authentication process.
   - `action`: Tells what action should the wallet perform in next step. Here it should be `responseAuth` and wallet will use `POST` method to access the `url`.
   - `requestedClaims` is an optional filed. If the user is unknown to the application, it can ask users to identify themselves by returning this filed. We will illustrate the details of this filed in section [Verifiable Claims](#verifiable-claims). The application can also skip this omit this filed if it wants.
@@ -153,7 +154,7 @@ After the wallet gathers the information described in previous section it starts
 
 This is the last process of the overall workflow. Depends on whether application requires verifiable claims, wallet will either prompt user to fill in requested claims and then go to the responseAuth endpoint or go to the endpoint directly in this process.
 
-1. Wallet should display all requested claims to users and wait for user's input. 
+1. Wallet should display all requested claims to users and wait for user's input.
 2. After user fills all data, wallet signs the payload with the corresponding secret key of the `usr_did` and then send it back to the `url` obtained in Request DID Authentication process in following format.
     ```json
     {
@@ -187,7 +188,7 @@ This is the last process of the overall workflow. Depends on whether application
             "country": "USA"
           }
         },
-        { 
+        {
           "type": "agreement",
           "uri": "https://document-1.io",
           "hash": {
@@ -197,7 +198,7 @@ This is the last process of the overall workflow. Depends on whether application
           "agreed": true,
           "sig": "user's signature against the doc hash plus AGREED."
         },
-        { 
+        {
           "type": "agreement",
           "uri": "ipfs://document-2",
           "hash": {
@@ -351,12 +352,12 @@ When peer requires profile claims, it should add a list of profile items to the 
   ```json
   {
     "requestedClaims": [
-      { 
+      {
         "type": "profile",
-        "meta": { 
+        "meta": {
           "description": "Please provide the basic information.",
-        }, 
-        "items": ["fullName", "mobilePhone", "mailingAddress"] 
+        },
+        "items": ["fullName", "mobilePhone", "mailingAddress"]
       }
     ]
   }
@@ -368,7 +369,7 @@ After receive this response, the wallet should prompt user to fill in data. Latt
     "requestedClaims": [
       {
         "type": "profile",
-        "meta": { 
+        "meta": {
           "description": "Please provide the basic information",
         },
         "fullName": "Alice Bean",
@@ -433,9 +434,9 @@ When a peer wants a user to sign agreements, it should add a list of claim item 
   ```json
   {
     "requestedClaims": [
-      { 
+      {
         "type": "agreement",
-        "meta": { 
+        "meta": {
           "description": "The user data usage agreement.",
         },
         "uri": "https://document-1.io",
@@ -444,9 +445,9 @@ When a peer wants a user to sign agreements, it should add a list of claim item 
           "digest": "The hash result of the document's content"
         }
       },
-      { 
+      {
         "type": "agreement",
-        "meta": { 
+        "meta": {
           "description": "The service agreement",
         },
         "uri": "ipfs://document-2",
@@ -463,7 +464,7 @@ When see this response, the wallet should prompt user to sign the agreements. La
   ```json
   {
     "requestedClaims": [
-      { 
+      {
         "type": "agreement",
         "uri": "https://document-1.io",
         "hash": {
@@ -473,7 +474,7 @@ When see this response, the wallet should prompt user to sign the agreements. La
         "agreed": true,
         "sig": "user's signature against the doc digest plus AGREED."
       },
-      { 
+      {
         "type": "agreement",
         "uri": "ipfs://document-2",
         "hash": {
@@ -538,8 +539,6 @@ Trust level is a number to relatively show how trustworthy an application is. Th
 
 ## References:
 
-- [Self-Sovereign Identity & Decentralized Identifiers](http://bootcamp.arcblock.io/bbl/bbl24-did-ssi.html)
-- [ABT Wallet: DID-Auth-Protocol](http://bootcamp.arcblock.io/product/abp8-abt-wallet.html#did-auth-protocol)
 - [iOS Universal Link](https://developer.apple.com/ios/universal-links/)
 - [Android App Link](https://developer.android.com/training/app-links/)
 - [URL Encoded Form Data](https://www.w3.org/TR/html5/sec-forms.html#urlencoded-form-data)
