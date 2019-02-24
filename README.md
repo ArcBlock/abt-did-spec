@@ -14,7 +14,11 @@ This repository defines the specification of ArcBlock DID Auth Protocol.
   - [Revoke DID Authentication](#revoke-did-authentication)
 - [DID](#did)
   - [DID Type](#did-type)
-  - [How to create DID](#how-to-create-did)
+  - [Create DID](#create-did)
+  - [Declare DID](#declare-did)
+  - [Read DID](#read-did)
+  - [Update DID](#update-did)
+  - [Revoke DID](#revoke-did)
 - [Verifiable Claims](#verifiable-claims)
   - [Profile](#profile)
     - [Predefined claim items:](#predefined-claim-items)
@@ -276,13 +280,13 @@ So DID type bytes `0x0C01` can be interpreted as follow:
 
 ```
 +-------------+-----------+------------+
-| 000011      | 0000      | 00001      |
+| 000011      | 00000     | 00001      |
 +-------------+-----------+------------+
 | application | ed25519   | sha3       |
 +-------------+-----------+------------+
 ```
 
-### How to create DID
+### Create DID
 
 This process is inspired by Bitcoin. The difference is that we use a single SHA3 to replace SHA256 and RIPEMD160 which are used to do double hash in Bitcoin.
 
@@ -327,6 +331,90 @@ This process is inspired by Bitcoin. The difference is that we use a single SHA3
   ```
   did:abt:zNKtCNqYWLYWYW3gWRA1vnRykfCBZYHZvzKr
   ```
+
+### Declare DID
+
+Declaring a DID is done by sending a declare transaction to the blockchain. The following is a sample transaction.
+
+```json
+{
+  "hash": "36BBCA0115A52C0F43C42E84CAE368481A0F32B218380721E3DD2B0456D1D294",
+  "tx": {
+    "from": "z1RMrcjJVwuohBoqAsPaVvuDajQi1fDo8Qx",
+    "itx": {
+      "__typename": "DeclareTx",
+      "data": null,
+      "pk": "IWNMqz5IdsqxO0x9iqdlSfMvPkchVc3un8mmLXT_GcU",
+      "type": {
+        "address": "BASE58",
+        "hash": "SHA3",
+        "pk": "ED25519",
+        "role": "ROLE_ACCOUNT"
+      }
+    },
+    "nonce": 1,
+    "signature": "E_BkPhw-WUpkTk5nn_WF4z-8huOBqjl-3vQ122TYCDQiahFlklVJT3I7YUwr8d-pi_mqMM0JKWB06ayJh3gODQ",
+    "signatures": []
+  }
+}
+```
+
+### Read DID
+
+To read a DID, one just need to send a GRPC request to ABT network. The structure of the request is described as follow. The `address` filed is the DID to query. If the `keys` field is omitted, entire account states will be returned. The `height` field can be used to retrieve the older version of the DID documents. If it is omitted, the latest one will be returned.
+
+```
+message RequestGetAccountState {
+  string address = 1;
+  repeated string keys = 2;
+  uint64 height = 3;
+}
+```
+
+The response contains the DID document associated with this DID.
+
+### Update DID
+
+To update associated DID document of a DID, one can send an update transaction like this:
+
+```json
+{
+  "hash": "36BBCA0115A52C0F43C42E84CAE368481A0F32B218380721E3DD2B0456D1D294",
+  "tx": {
+    "from": "z1RMrcjJVwuohBoqAsPaVvuDajQi1fDo8Qx",
+    "itx": {
+      "__typename": "UpdateTx",
+      "data": "The new data to replace the existing one.",
+      "pk": "IWNMqz5IdsqxO0x9iqdlSfMvPkchVc3un8mmLXT_GcU",
+    },
+    "nonce": 1,
+    "signature": "E_BkPhw-WUpkTk5nn_WF4z-8huOBqjl-3vQ122TYCDQiahFlklVJT3I7YUwr8d-pi_mqMM0JKWB06ayJh3gODQ",
+    "signatures": []
+  }
+}
+```
+
+It is worth mentioning that old versions of DID document are still stored on the chain due to the natures of the data structure used by the chain. So this operation is not updating the DID document in place but putting a new version over the existing one.
+
+### Revoke DID
+
+To revoke a DID document, one can send a RevokeTx transaction to mark the DID document as revoked. The DID document will be considered as revoked from the block where the transaction is accepted. This does not mean the DID documents are deleted, they are still stored on the chain.
+
+```
+{
+  "hash": "36BBCA0115A52C0F43C42E84CAE368481A0F32B218380721E3DD2B0456D1D294",
+  "tx": {
+    "from": "z1RMrcjJVwuohBoqAsPaVvuDajQi1fDo8Qx",
+    "itx": {
+      "__typename": "RevokeTx",
+      "pk": "IWNMqz5IdsqxO0x9iqdlSfMvPkchVc3un8mmLXT_GcU",
+    },
+    "nonce": 1,
+    "signature": "E_BkPhw-WUpkTk5nn_WF4z-8huOBqjl-3vQ122TYCDQiahFlklVJT3I7YUwr8d-pi_mqMM0JKWB06ayJh3gODQ",
+    "signatures": []
+  }
+}
+```
 
 ## Verifiable Claims
 
