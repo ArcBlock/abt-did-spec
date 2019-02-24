@@ -276,13 +276,13 @@ So DID type bytes `0x0C01` can be interpreted as follow:
 
 ```
 +-------------+-----------+------------+
-| 000011      | 0000      | 00001      |
+| 000011      | 00000     | 00001      |
 +-------------+-----------+------------+
 | application | ed25519   | sha3       |
 +-------------+-----------+------------+
 ```
 
-### How to create DID
+### Create DID
 
 This process is inspired by Bitcoin. The difference is that we use a single SHA3 to replace SHA256 and RIPEMD160 which are used to do double hash in Bitcoin.
 
@@ -327,6 +327,86 @@ This process is inspired by Bitcoin. The difference is that we use a single SHA3
   ```
   did:abt:zNKtCNqYWLYWYW3gWRA1vnRykfCBZYHZvzKr
   ```
+
+### Declare DID
+
+Declaring a DID is done by sending a declare transaction to the ABT network. The following is a sample transaction.
+
+```json
+{
+  "code": "OK",
+  "hash": "36BBCA0115A52C0F43C42E84CAE368481A0F32B218380721E3DD2B0456D1D294",
+  "height": 1521,
+  "index": 224,
+  "tags": [
+    {
+      "key": "moniker",
+      "value": "Wuckert"
+    }
+  ],
+  "tx": {
+    "chainId": "forge",
+    "from": "z1RMrcjJVwuohBoqAsPaVvuDajQi1fDo8Qx",
+    "itx": {
+      "__typename": "DeclareTx",
+      "data": null,
+      "moniker": "Wuckert",
+      "pk": "IWNMqz5IdsqxO0x9iqdlSfMvPkchVc3un8mmLXT_GcU",
+      "type": {
+        "address": "BASE58",
+        "hash": "SHA3",
+        "pk": "ED25519",
+        "role": "ROLE_ACCOUNT"
+      }
+    },
+    "nonce": 1,
+    "signature": "E_BkPhw-WUpkTk5nn_WF4z-8huOBqjl-3vQ122TYCDQiahFlklVJT3I7YUwr8d-pi_mqMM0JKWB06ayJh3gODQ",
+    "signatures": []
+  }
+}
+```
+
+### Read DID
+
+To read a DID, one just need to send a GRPC request to ABT network. The structure of the request is described as follow. The `address` filed is the DID to query. If the `keys` field is omitted, entire account states will be returned.
+
+```
+message RequestGetAccountState {
+  string address = 1;
+  repeated string keys = 2;
+}
+```
+
+The response contains the DID document associated with this DID.
+
+### Update DID
+
+To update associated DID document of a DID, one can send an update transaction like this:
+
+```json
+{
+  "code": "OK",
+  "hash": "36BBCA0115A52C0F43C42E84CAE368481A0F32B218380721E3DD2B0456D1D294",
+  "height": 1521,
+  "index": 224,
+  "tx": {
+    "chainId": "forge",
+    "from": "z1RMrcjJVwuohBoqAsPaVvuDajQi1fDo8Qx",
+    "itx": {
+      "__typename": "UpdateTx",
+      "data": "The new data to replace the existing one.",
+      "pk": "IWNMqz5IdsqxO0x9iqdlSfMvPkchVc3un8mmLXT_GcU",
+    },
+    "nonce": 1,
+    "signature": "E_BkPhw-WUpkTk5nn_WF4z-8huOBqjl-3vQ122TYCDQiahFlklVJT3I7YUwr8d-pi_mqMM0JKWB06ayJh3gODQ",
+    "signatures": []
+  }
+}
+```
+
+### Revoke DID
+
+To revoke a DID document, one can send a similar transaction like updating DID but set the `data` as null. In this way, the associated DID document will be deleted but the DID itself is still valid. Another option is migrating a DID. Once a DID is migrated to another DID, the old one is considered as invalid over the entire ABT network.
 
 ## Verifiable Claims
 
