@@ -330,27 +330,16 @@ This process is inspired by Bitcoin. The difference is that we use a single SHA3
 
 ### Declare DID
 
-Declaring a DID is done by sending a declare transaction to the ABT network. The following is a sample transaction.
+Declaring a DID is done by sending a declare transaction to the blockchain. The following is a sample transaction.
 
 ```json
 {
-  "code": "OK",
   "hash": "36BBCA0115A52C0F43C42E84CAE368481A0F32B218380721E3DD2B0456D1D294",
-  "height": 1521,
-  "index": 224,
-  "tags": [
-    {
-      "key": "moniker",
-      "value": "Wuckert"
-    }
-  ],
   "tx": {
-    "chainId": "forge",
     "from": "z1RMrcjJVwuohBoqAsPaVvuDajQi1fDo8Qx",
     "itx": {
       "__typename": "DeclareTx",
       "data": null,
-      "moniker": "Wuckert",
       "pk": "IWNMqz5IdsqxO0x9iqdlSfMvPkchVc3un8mmLXT_GcU",
       "type": {
         "address": "BASE58",
@@ -368,12 +357,13 @@ Declaring a DID is done by sending a declare transaction to the ABT network. The
 
 ### Read DID
 
-To read a DID, one just need to send a GRPC request to ABT network. The structure of the request is described as follow. The `address` filed is the DID to query. If the `keys` field is omitted, entire account states will be returned.
+To read a DID, one just need to send a GRPC request to ABT network. The structure of the request is described as follow. The `address` filed is the DID to query. If the `keys` field is omitted, entire account states will be returned. The `height` field can be used to retrieve the older version of the DID documents. If it is omitted, the latest one will be returned.
 
 ```
 message RequestGetAccountState {
   string address = 1;
   repeated string keys = 2;
+  uint64 height = 3;
 }
 ```
 
@@ -385,12 +375,8 @@ To update associated DID document of a DID, one can send an update transaction l
 
 ```json
 {
-  "code": "OK",
   "hash": "36BBCA0115A52C0F43C42E84CAE368481A0F32B218380721E3DD2B0456D1D294",
-  "height": 1521,
-  "index": 224,
   "tx": {
-    "chainId": "forge",
     "from": "z1RMrcjJVwuohBoqAsPaVvuDajQi1fDo8Qx",
     "itx": {
       "__typename": "UpdateTx",
@@ -404,9 +390,27 @@ To update associated DID document of a DID, one can send an update transaction l
 }
 ```
 
+It is worth mentioning that old versions of DID document are still stored on the chain due to the natures of the data structure used by the chain. So this operation is not updating the DID document in place but putting a new version over the existing one.
+
 ### Revoke DID
 
-To revoke a DID document, one can send a similar transaction like updating DID but set the `data` as null. In this way, the associated DID document will be deleted but the DID itself is still valid. Another option is migrating a DID. Once a DID is migrated to another DID, the old one is considered as invalid over the entire ABT network.
+To revoke a DID document, one can send a RevokeTx transaction to mark the DID document as revoked. The DID document will be considered as revoked from the block where the transaction is accepted. This does not mean the DID documents are deleted, they are still stored on the chain.
+
+```
+{
+  "hash": "36BBCA0115A52C0F43C42E84CAE368481A0F32B218380721E3DD2B0456D1D294",
+  "tx": {
+    "from": "z1RMrcjJVwuohBoqAsPaVvuDajQi1fDo8Qx",
+    "itx": {
+      "__typename": "RevokeTx",
+      "pk": "IWNMqz5IdsqxO0x9iqdlSfMvPkchVc3un8mmLXT_GcU",
+    },
+    "nonce": 1,
+    "signature": "E_BkPhw-WUpkTk5nn_WF4z-8huOBqjl-3vQ122TYCDQiahFlklVJT3I7YUwr8d-pi_mqMM0JKWB06ayJh3gODQ",
+    "signatures": []
+  }
+}
+```
 
 ## Verifiable Claims
 
