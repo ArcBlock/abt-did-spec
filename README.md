@@ -19,6 +19,8 @@ This repository defines the specification of ArcBlock DID Auth Protocol.
   - [Read DID](#read-did)
   - [Update DID](#update-did)
   - [Revoke DID](#revoke-did)
+  - [Privacy considerations](#privacy-considerations)
+  - [Security considerations](#security-considerations)
 - [Verifiable Claims](#verifiable-claims)
   - [Profile](#profile)
     - [Predefined claim items:](#predefined-claim-items)
@@ -69,7 +71,7 @@ After the wallet gathers the information described in previous section it starts
     1. Apply sha3 to the appDid
     2. Take the first 64 bits of the hash
     3. Split the these 64 bits into two 32-bits-long sections denoted as `S1` and `S2`.
-    4. Derive the HD secret key by using path `m/44'/ABT'/S1'/S2'/address_index` where ABT' is the coin type registered on SLIP44 and address_index is numbered from index 0 in sequentially increasing manner.
+    4. Derive the HD secret key by using path `m/44'/ABT'/S1'/S2'/address_index` where ABT' is the coin type registered on [SLIP44](https://github.com/satoshilabs/slips/blob/master/slip-0044.md) (ABT's coin type is 260) and address_index is numbered from index 0 in sequentially increasing manner.
     5. Convert the HD secret key to `userDid` by using the rules described in [DID section](#did).
     6. From this point, the wallet should use this derived secret key, public key and DID for future processing.
 2. Encrypt the `userDid` with `appPk`. (TBD)
@@ -415,6 +417,39 @@ To revoke a DID document, one can send a RevokeTx transaction to mark the DID do
   }
 }
 ```
+
+### Privacy considerations
+
+The ways of how to create, register and manage DIDs in ABT DID method are designed to provide enhanced privacy, improved anonymity and reduced correlation risk.
+
+  - Keeping personally-identifiable information (PII) off-ledger.
+  
+    PII is not stored on chains, only the signatures are stored. When a verifier needs to verify a claim, it asks the peer to be verified for the original data. Due to the nature of DSA algorithms, the it is very hard for the peer to forge the previously signed data.
+
+  - DID Correlation Risks and Pseudonymous DIDs
+    
+    As illustrated in [Request DID Authentication](#request-did-authentication) step 1, the way of how to generate application-specific DID enforces pseudonymous DID and privacy across different chains. An user has multiple extended DIDs under one master DID and different extended DIDs are used in different chains. The master DID is never exposed publicly in any way.
+
+  - DID Document Correlation Risks
+    
+    DID documents of different extended DIDs of the same master DID are also isolated.  
+
+### Security considerations
+
+The underlayer blockchain also ensured the following security risks:
+
+  - Replay attacks
+  - Man-in-the-middle attacks
+  - Message insertion attacks
+  - Deletion attacks
+  - Modification attacks
+  
+Our blockchain based implementation has considered each of following requirements listed in W3C DID specification: 
+ - security assumptions of distributed ledger topology
+ - policy mechanism used to prove DIDs are uniquely assigned
+ - integrity protection and update authentication for DID operations
+ - DID Method-specific endpoint authentication
+
 
 ## Verifiable Claims
 
