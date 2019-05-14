@@ -325,7 +325,7 @@ This process is inspired by Bitcoin. The difference is that we use a single SHA3
   ```
   0C01EC8E681514753FE5955D3E8B57DAEC9D123E3DB142CD8151
   ```
-- Step 10: Encode the binary value by using the Bitcoin Base58 method.
+- Step 10: Encode the binary value by using the Bitcoin Base58 method. Note, we are using IPFS's [multibase](https://github.com/multiformats/multibase) to encode as `base58_btc` type, it will add a `z` in the beginning of the base58 encoded string.
   ```
   zNKtCNqYWLYWYW3gWRA1vnRykfCBZYHZvzKr
   ```
