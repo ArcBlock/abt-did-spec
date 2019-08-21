@@ -266,17 +266,19 @@ DID type is the first two bytes of the DID string's binary format. It contains t
     - `stake` = 7
     - `validator` = 8
     - `group` = 9
+    - `tx` = 10
+    - `tether` = 11
     - `any` = 63
 2. The following 5 bits denotes the *KeyType*, algorithm to convert secret key to public key.
     - `ED25519` = 0
     - `SECP256K1` = 1
 3. The latter 5 bits represents the *Hash* function to calculate the hash of public key.
     - `keccak` = 0
-    - `sha3` = 1
-    - `keccak_384` = 2
-    - `sha3_384` = 3
-    - `keccak_512 ` = 4
-    - `sha3_512 ` = 5
+    - `sha3` = 1  *2-5 reserved*
+    - `keccak_384` = 6
+    - `sha3_384` = 7  *6-12 reserved*
+    - `keccak_512 ` = 13
+    - `sha3_512 ` = 14
 
 So DID type bytes `0x0C01` can be interpreted as follow:
 
